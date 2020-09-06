@@ -25,8 +25,22 @@ namespace PromotionEngineLibrary
         public int CalculateTotalAfterPromotions(Dictionary<string,int> userCart)
         {
 
-            int total = 0; 
+            int total = 0;
+            int value, promotionPrice;
+            for (int i = 0; i < userCart.Count(); i++)
+            {
 
+                if (ActivePromotions.PromotionPrice["A"].Quantity < userCart["A"])
+                {
+                    value = userCart["A"] % ActivePromotions.PromotionPrice["A"].Quantity;
+                    value = value * UnitPricing.UnitPrice["A"];
+                    promotionPrice = ActivePromotions.PromotionPrice["A"].Price * (userCart["A"] / ActivePromotions.PromotionPrice["A"].Quantity);
+                    if (value != 0)
+                    {
+                        total = total + promotionPrice + value;
+                    }
+                }
+            }
             return total;
         }
 
