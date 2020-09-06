@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace PromotionEngineLibrary
 {
-   public  class PromotionEngine
+    public class PromotionEngine
     {
+        static bool calculated = false;
         private Dictionary<string, PerItemQuantityPrice> activePromotions = new Dictionary<string, PerItemQuantityPrice>();
         public PromotionEngine()
         {
@@ -22,27 +23,93 @@ namespace PromotionEngineLibrary
             activePromotions.Add("C&D", new PerItemQuantityPrice { Quantity = 1, Price = 30 });
             ActivePromotions.PromotionPrice = activePromotions;
         }
-        public int CalculateTotalAfterPromotions(Dictionary<string,int> userCart)
+        public int CalculateTotalAfterPromotions(Dictionary<string, int> userCart)
         {
 
             int total = 0;
             int value, promotionPrice;
-            for (int i = 0; i < userCart.Count(); i++)
+            var userCartCondition = userCart.Keys;
+            foreach (String cartondition in userCartCondition)
             {
 
-                if (ActivePromotions.PromotionPrice["A"].Quantity < userCart["A"])
+                switch (cartondition)
                 {
-                    value = userCart["A"] % ActivePromotions.PromotionPrice["A"].Quantity;
-                    value = value * UnitPricing.UnitPrice["A"];
-                    promotionPrice = ActivePromotions.PromotionPrice["A"].Price * (userCart["A"] / ActivePromotions.PromotionPrice["A"].Quantity);
-                    if (value != 0)
-                    {
-                        total = total + promotionPrice + value;
-                    }
+                    case "A":
+                        total += BillItemA(userCart);
+                        break;
+                    case "B":
+                        total += BillItemB(userCart);
+                        break;
+                    case "C":
+                    case "D":
+                        total += BillItemC_D(userCart);
+                        break;
+
+
                 }
+
             }
             return total;
         }
+        private int BillItemA(Dictionary<string, int> userCart)
+        {
+            int aTotal = 0, totalNonPromotionItems, promotionPrice;
 
+            if (ActivePromotions.PromotionPrice["A"].Quantity <= userCart["A"])
+            {
+                totalNonPromotionItems = userCart["A"] % ActivePromotions.PromotionPrice["A"].Quantity;
+                totalNonPromotionItems = totalNonPromotionItems * UnitPricing.UnitPrice["A"];
+                promotionPrice = ActivePromotions.PromotionPrice["A"].Price * (userCart["A"] / ActivePromotions.PromotionPrice["A"].Quantity);
+
+                aTotal = aTotal + promotionPrice + totalNonPromotionItems;
+
+            }
+            else
+                aTotal = userCart["A"] * UnitPricing.UnitPrice["A"];
+
+            return aTotal;
+        }
+
+        private int BillItemB(Dictionary<string, int> userCart)
+        {
+            int bTotal = 0, totalNonPromotionItems, promotionPrice;
+
+            if (ActivePromotions.PromotionPrice["B"].Quantity <= userCart["B"])
+            {
+                totalNonPromotionItems = userCart["B"] % ActivePromotions.PromotionPrice["B"].Quantity;
+                totalNonPromotionItems = totalNonPromotionItems * UnitPricing.UnitPrice["B"];
+                promotionPrice = ActivePromotions.PromotionPrice["B"].Price * (userCart["B"] / ActivePromotions.PromotionPrice["B"].Quantity);
+
+                bTotal = bTotal + promotionPrice + totalNonPromotionItems;
+
+            }
+            else
+                bTotal = userCart["A"] * UnitPricing.UnitPrice["A"];
+
+            return bTotal;
+        }
+        private int BillItemC_D(Dictionary<string, int> userCart)
+        {
+            int cdTotal = 0, totalCItems, totalDItems;
+            totalCItems = userCart["C"];
+            totalDItems = userCart["D"];
+            if (!calculated)
+            {
+                calculated = true;
+                
+                if (totalCItems > 0 && totalDItems > 0)
+                {
+
+                    cdTotal = totalCItems > totalDItems ? ((totalCItems * ActivePromotions.PromotionPrice["C&D"].Price)) + ((totalCItems - totalDItems) * ActivePromotions.PromotionPrice["C"].Price) : (totalDItems * ActivePromotions.PromotionPrice["C&D"].Price + ((totalDItems - totalCItems) * ActivePromotions.PromotionPrice["D"].Price));
+
+                }
+                else
+                {
+                    cdTotal = totalCItems == 0 ? totalDItems * UnitPricing.UnitPrice["D"] : totalCItems * UnitPricing.UnitPrice["C"];
+                }
+            }
+                return cdTotal;
+            }
+        
     }
 }
