@@ -13,20 +13,16 @@ namespace PromotionEngineTest
         public class PromotionEngineTest
         {
             [TestMethod]
-            public void busFareCalculationTest1()
+            public void PromotionEngineTest_CalculateRightTotal()
             {
                 //Arrange
-                int startPt = 2;
-                int endPt = 6;
-                int fare = 10;
-                int stageValue = 5;
-                CalculateFare cf = new CalculateFare();
+               
 
                 //Act
-                int fareTestValue = cf.CalculateBusFareBasedOnStops(startPt, endPt, stageValue);
+               
 
                 //Assert
-                Assert.AreEqual(fare, fareTestValue, 0, "Proper Fare");
+               
             }
         }
 }
